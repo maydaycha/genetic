@@ -3,15 +3,42 @@
 
 import random as r
 import sys
+
 # normal function
+# def random_list_of_string1(l):
+#     a = []
+#     l = list(l)
+#     for i in range(len(l)):
+#         ele = r.choice(l)
+#         l.remove(ele)
+#         a.append(ele)
+#     return a
+
 def random_list_of_string(l):
     a = []
     l = list(l)
-    for i in range(len(l)):
-        ele = r.choice(l)
-        l.remove(ele)
-        a.append(ele)
+    while l:
+        e = r.choice(l)
+        # 連續兩堂
+        if e[0] == '5':
+            index = l.index(e)
+            print "now ele: %s=> index %d" % (e, index)
+            print l
+            a.append(l.pop(index))
+            print l
+            a.append(l.pop(index))
+            print l
+        else:
+            l.remove(e)
+            a.append(e)
+        print "now len %d" % len(l)
     return a
+
+
+
+
+
+
 
 
 
@@ -20,14 +47,14 @@ def random_list_of_string(l):
 
 # course name
 c = "1國"
-m = "2數"
+m_two = "2數"
 e = "1英"
 s = "1自"
 a = "1藝"
 h = "1歷"
 
 c_bin = ""
-m_bin = ""
+m_two_bin = ""
 e_bin = ""
 s_bin = ""
 a_bin = ""
@@ -38,9 +65,9 @@ for i in bytearray(c):
     c_bin += str(i)
 print "%s:%d" % (c_bin, len(c_bin))
 
-for i in bytearray(m):
-    m_bin += str(i)
-print "%s:%d" % (m_bin, len(m_bin))
+for i in bytearray(m_two):
+    m_two_bin += str(i)
+print "%s:%d" % (m_two_bin, len(m_two_bin))
 
 for i in bytearray(e):
     e_bin += str(i)
@@ -60,7 +87,7 @@ print "%s:%d" % (h_bin, len(h_bin))
 
 
 # consrust a course list for a week (a day)
-course_list = [c_bin, m_bin, e_bin, s_bin, a_bin, h_bin]
+course_list = [c_bin, m_two_bin, m_two_bin, e_bin, s_bin, a_bin, h_bin]
 
 # course binary string length
 course_len = len(c_bin)
@@ -69,8 +96,8 @@ num_of_course = len(course_list)
 
 
 # initialize course container for class
-class1, class2 = [None] * num_of_course, [None] * num_of_course
-class_list = [class1, class2]
+class1, class2, class3 = [None] * num_of_course, [None] * num_of_course,  [None] * num_of_course,
+class_list = [class1, class2, class3]
 
 
 
@@ -79,6 +106,7 @@ for c in class_list:
     for current_course in course_list:
         c.pop(0)
         c.append(current_course)
+
 
 
 def test1(genetic):
@@ -102,13 +130,17 @@ def mating(par1, par2):
     return front + end
 
 
+# print class_list
+# sys.exit()
+
 # 初始族群
 with open("genetic.txt", "w+") as outfile:
     genetic_list = []
     for i in xrange(100):
         gen = []
-        gen.append(random_list_of_string(class1))
-        gen.append(random_list_of_string(class2))
+        for g in class_list:
+            print g
+            gen.append(random_list_of_string(g))
         dict = {'score': test1(gen), 'genetic': gen}
         outfile.write(str(dict)+"\n")
         genetic_list.append(dict)
@@ -121,7 +153,7 @@ with open("result.txt", "w+") as outfile:
         while r1 == r2:
             r1 = r.randrange(0, len(genetic_list))
             r2 = r.randrange(0, len(genetic_list))
-            print r1, r2
+            # print r1, r2
         child = mating(genetic_list[r1]['genetic'], genetic_list[r2]['genetic'])
         test_score = test1(child)
         if test_score > genetic_list[r1]['score'] or test_score > genetic_list[r2]['score']:
@@ -129,6 +161,7 @@ with open("result.txt", "w+") as outfile:
                 genetic_list[r2] = {'score': test_score, 'genetic': child, 'child': True}
             else:
                 genetic_list[r1] = {'score': test_score, 'genetic': child, 'child': True}
+
     for ele in genetic_list:
         outfile.write(str(ele)+"\n")
 
