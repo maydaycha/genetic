@@ -3,6 +3,7 @@
 
 import random as r
 import sys
+import json
 
 # normal function
 # def random_list_of_string1(l):
@@ -19,96 +20,88 @@ def random_list_of_string(l):
     l = list(l)
     while l:
         e = r.choice(l)
-        # 連續兩堂
-        if e[0] == '5':
+        if e[:2] == '50': # 連續2堂
             index = l.index(e)
-            print "now ele: %s=> index %d" % (e, index)
-            print l
-            a.append(l.pop(index))
-            print l
-            a.append(l.pop(index))
-            print l
+            for i in xrange(2):
+                a.append(l.pop(index))
+        elif e[:2] == '51': # 連續3堂
+            for i in xrange(3):
+                index = l.index(e)
+                a.append(l.pop(index))
         else:
             l.remove(e)
             a.append(e)
-        print "now len %d" % len(l)
     return a
 
+def random_list_of_string2(g):
+    a = []
+    result = []
+    for i in g:
+        l = list(i)
+        while l:
+            e = r.choice(l)
+            if e[:2] == '50': # 連續2堂
+                index = l.index(e)
+                for i in xrange(2):
+                    a.append(l.pop(index))
+            elif e[:2] == '51': # 連續3堂
+                for i in xrange(3):
+                    index = l.index(e)
+                    a.append(l.pop(index))
+            else:
+                l.remove(e)
+                a.append(e)
+        result.append(a)
+        a = []
+    return result
 
 
 
-
-
-
-
-
-# 開頭1 => 49, 2 => 50
+# 開頭1 => 49, 2 => 50, 3 => 51
 # 一個禮拜35節課
-
-# course name
-c = "1國"
-m_two = "2數"
-e = "1英"
-s = "1自"
-a = "1藝"
-h = "1歷"
-
-c_bin = ""
-m_two_bin = ""
-e_bin = ""
-s_bin = ""
-a_bin = ""
-h_bin = ""
-
-# transform to binary
-for i in bytearray(c):
-    c_bin += str(i)
-print "%s:%d" % (c_bin, len(c_bin))
-
-for i in bytearray(m_two):
-    m_two_bin += str(i)
-print "%s:%d" % (m_two_bin, len(m_two_bin))
-
-for i in bytearray(e):
-    e_bin += str(i)
-print "%s:%d" % (e_bin, len(e_bin))
-
-for i in bytearray(s):
-    s_bin += str(i)
-print "%s:%d" % (s_bin, len(s_bin))
-
-for i in bytearray(a):
-    a_bin += str(i)
-print "%s:%d" % (a_bin, len(a_bin))
-
-for i in bytearray(h):
-    h_bin += str(i)
-print "%s:%d" % (h_bin, len(h_bin))
+# course list
+def construct_course_list(l):
+    result = []
+    for ele in l:
+        convert = "".join([str(x) for x in bytearray(ele)])
+        result.append(convert)
+    return result
 
 
 # consrust a course list for a week (a day)
-course_list = [c_bin, m_two_bin, m_two_bin, e_bin, s_bin, a_bin, h_bin]
+course_list = ["1國", "2數", "2數", "1英", "1自", "1藝", "1歷", "1藝", "1英", "1歷", "1體", "1音", "1化"]
+course_list.extend(["1國", "1英", "1自", "1藝", "1歷", "1音", "1化", "1息"])
+course_list.extend(["1國", "1英", "1自", "1藝", "1歷", "1音", "1化", "1息"])
+course_list = construct_course_list(course_list)
 
 # course binary string length
-course_len = len(c_bin)
+def course_binary_length(name_chinese):
+    return len("".join([str(x) for x in bytearray(name_chinese)]))
+course_len = course_binary_length("1國")
+
 
 num_of_course = len(course_list)
 
 
 # initialize course container for class
-class1, class2, class3 = [None] * num_of_course, [None] * num_of_course,  [None] * num_of_course,
-class_list = [class1, class2, class3]
+# class1, class2, class3 = [None] * num_of_course, [None] * num_of_course,  [None] * num_of_course,
+# class_list = [class1, class2, class3]
+# 2個班
+class_list = []
+for i in range(3):
+    class_list.append([None] * num_of_course)
 
 
 
-# distribute course, for initialize
+
+# distribute course, for initialization
 for c in class_list:
     for current_course in course_list:
         c.pop(0)
         c.append(current_course)
 
 
-
+# 計算衝堂個數
 def test1(genetic):
     punish = 0
     for i in range(num_of_course):
@@ -117,21 +110,23 @@ def test1(genetic):
             punish += 1
     return -punish
 
-def selecttion(genetic_list):
-    max = - 99
+
+def selection(genetic_list):
+    max = -99
     max  = [i.score for i in genetic_list if i.score > max]
     # for i in genetic_list:
         # if
 
+
+# 交配
 def mating(par1, par2):
     # seed = r.randrange(0, len(par1))
     front, end = list(par1)[:len(par1)/2], list(par2)[len(par1)/2:]
-    front, end = random_list_of_string(front), random_list_of_string(end)
+    front, end = random_list_of_string2(front), random_list_of_string2(end)
     return front + end
 
 
 # print class_list
-# sys.exit()
 
 # 初始族群
 with open("genetic.txt", "w+") as outfile:
@@ -139,21 +134,18 @@ with open("genetic.txt", "w+") as outfile:
     for i in xrange(100):
         gen = []
         for g in class_list:
-            print g
             gen.append(random_list_of_string(g))
         dict = {'score': test1(gen), 'genetic': gen}
         outfile.write(str(dict)+"\n")
         genetic_list.append(dict)
 
-# sys.exit()
 
 with open("result.txt", "w+") as outfile:
-    for i in range(1000):
+    for i in range(1000000):
         r1, r2 = 0, 0
         while r1 == r2:
             r1 = r.randrange(0, len(genetic_list))
             r2 = r.randrange(0, len(genetic_list))
-            # print r1, r2
         child = mating(genetic_list[r1]['genetic'], genetic_list[r2]['genetic'])
         test_score = test1(child)
         if test_score > genetic_list[r1]['score'] or test_score > genetic_list[r2]['score']:
@@ -164,6 +156,17 @@ with open("result.txt", "w+") as outfile:
 
     for ele in genetic_list:
         outfile.write(str(ele)+"\n")
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -261,10 +264,3 @@ class GeneticAlg(object):
 
 
 
-# g_alg = geneticAlg(gen_1, gen_2, course_len, num_of_course)
-# print 'parent'
-# g_alg.test()
-# print 'child'
-# g_alg.mating(g_alg.genetic1, g_alg.genetic2)
-# print g_alg.child1
-# print g_alg.child2
