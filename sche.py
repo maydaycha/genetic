@@ -6,15 +6,6 @@ import sys
 import json
 
 # normal function
-# def random_list_of_string1(l):
-#     a = []
-#     l = list(l)
-#     for i in range(len(l)):
-#         ele = r.choice(l)
-#         l.remove(ele)
-#         a.append(ele)
-#     return a
-
 def random_list_of_string(l):
     a = []
     l = list(l)
@@ -32,6 +23,7 @@ def random_list_of_string(l):
             l.remove(e)
             a.append(e)
     return a
+
 
 def random_list_of_string2(g):
     a = []
@@ -74,6 +66,21 @@ course_list.extend(["1國", "1英", "1自", "1藝", "1歷", "1音", "1化", "1�
 course_list.extend(["1國", "1英", "1自", "1藝", "1歷", "1音", "1化", "1息"])
 course_list = construct_course_list(course_list)
 
+course_list = []
+monday = ["1101", "2102", "2102", "1107", "1自", "1藝", "1歷"]
+tuesday = ["1藝", "1英", "1歷", "1體", "1音", "1化", "1國"]
+wednesday = []
+thursday = []
+fraiday = []
+
+course_list.extend(monday)
+course_list.extend(tuesday)
+course_list.extend(wednesday)
+course_list.extend(thursday)
+course_list.extend(fraiday)
+course_list = construct_course_list(course_list)
+
+
 # course binary string length
 def course_binary_length(name_chinese):
     return len("".join([str(x) for x in bytearray(name_chinese)]))
@@ -84,8 +91,6 @@ num_of_course = len(course_list)
 
 
 # initialize course container for class
-# class1, class2, class3 = [None] * num_of_course, [None] * num_of_course,  [None] * num_of_course,
-# class_list = [class1, class2, class3]
 # 2個班
 class_list = []
 for i in range(3):
@@ -156,10 +161,6 @@ with open("result.txt", "w+") as outfile:
 
     for ele in genetic_list:
         outfile.write(str(ele)+"\n")
-
-
-
-
 
 
 
