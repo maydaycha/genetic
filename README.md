@@ -1,7 +1,7 @@
 genetic
 =======
 
-generic.py ==> 簡單的排課，可以排除不衝堂的課表
+generic.py ==> 簡單的排課，可以排出不衝堂的課表
                 1. 初始族群會寫入 genetic.txt
                 2. 結果會寫入 result.txt
                 3. 
