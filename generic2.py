@@ -13,11 +13,6 @@ CROSSOVER_RATE = 0.5               # 交配率
 MUTATION_RATE = 0.1                # 突變率
 
 
-# consrust a course list for a week (a day)
-# course_list = ["1國", "2數", "2數", "1英", "1自", "1藝", "1歷", "1藝", "1英", "1歷", "1體", "1音", "1化"]
-# course_list.extend(["1國", "1英", "1自", "1藝", "1歷", "1音", "1化", "1息"])
-# course_list.extend(["1國", "1英", "1自", "1藝", "1歷", "1音", "1化", "1息"])
-# course_list = construct_course_list(course_list)
 
 course_list = []
 
@@ -123,7 +118,6 @@ class_list = course_list
 population = []
 pool = []
 best_gen = {'fitness': 0, 'genetic': list}
-print id(best_gen)
 
 # 進行初始化
 def initialize(best_gen):
@@ -202,7 +196,7 @@ def reproduction():
             pool.append(population[pos1])
         else:
             pool.append(population[pos2])
-
+# 交配
 def crossover():
     cnt = 0
     for x in xrange(POPULATION_CNT):
@@ -229,7 +223,7 @@ def crossover():
                 population[cnt]['genetic'][i] = copy.copy(pool[p2]['genetic'][i])
             cnt += 2
 
-
+# 突變
 def mutation():
     for i in xrange(POPULATION_CNT):
         mutation_if = srand()
@@ -237,12 +231,26 @@ def mutation():
             pos = GAPosRand() # 突變位置
             pos2 = r.randint(0, len(population[i]['genetic'][pos])-1)
             pos3 = r.randint(0, len(population[i]['genetic'][pos])-1)
-            temp = population[i]['genetic'][pos][pos2]
-            population[i]['genetic'][pos][pos2] = population[i]['genetic'][pos][pos3]
-            population[i]['genetic'][pos][pos3] = temp
+
+            if population[i]['genetic'][pos][pos2][:1] == '2': # 如果選到連課
+                index = population[i]['genetic'][pos].index(population[i]['genetic'][pos][pos2])
+                index2 = population[i]['genetic'][pos].index(population[i]['genetic'][pos][pos3])
+                temp1 = population[i]['genetic'][pos][index]
+                temp2 = population[i]['genetic'][pos][index+1]
+                if index2 == len(population[i]['genetic'][pos]) -1:
+                    index2 -= 1
+                population[i]['genetic'][pos][index] = population[i]['genetic'][pos][index2]
+                population[i]['genetic'][pos][index+1] = population[i]['genetic'][pos][index2+1]
+                population[i]['genetic'][pos][index2] = temp1
+                population[i]['genetic'][pos][index2+1] = temp2
+            else: # 單堂
+                temp = population[i]['genetic'][pos][pos2]
+                population[i]['genetic'][pos][pos2] = population[i]['genetic'][pos][pos3]
+                population[i]['genetic'][pos][pos3] = temp
         # 突變完後再算一次母體適應值
         population[i]['fitness'] = cal_fitness(population[i]['genetic'])
 
+        # 更新 best
         if i == 0:
             best_gen['fitness'] = population[0]['fitness']
             best_gen['genetic'] = copy.deepcopy(population[0]['genetic'])
@@ -432,64 +440,7 @@ def adaptable3(genetic):
 
 
 
-
-
-
-# course binary string length
-# def course_binary_length(name_chinese):
-#     return len("".join([str(x) for x in bytearray(name_chinese)]))
-# def course_
-# course_len = course_binary_length(4)
-
-
-
-# initialize course container for class
-# n個班
-# class_list = []
-# for i in range(len(course_list)):
-#     class_list.append([None] * num_of_course)
-
-
-
-# distribute course, for initialization
-# for c in class_list:
-#     for current_course in course_list:
-#         c.pop(0)
-#         c.append(current_course)
-# class_list = course_list
-
-
-
-# 初始族群
-# with open("genetic.txt", "w+") as outfile:
-#     genetic_list = []
-#     for i in xrange(100):
-#         gen = []
-#         for g in class_list:
-#             gen.append(random_list_of_string(g))
-#         dict = {'score': conflict(gen), 'genetic': gen}
-#         outfile.write(str(dict)+"\n")
-#         genetic_list.append(dict)
-
-
-# with open("result.txt", "w+") as outfile:
-#     for i in range(1000000):
-#         r1, r2 = 0, 0
-#         while r1 == r2:
-#             r1 = r.randrange(0, len(genetic_list))
-#             r2 = r.randrange(0, len(genetic_list))
-#         child = mating2(genetic_list[r1]['genetic'], genetic_list[r2]['genetic'])
-#         test_score = conflict(child)
-#         if test_score > genetic_list[r1]['score'] or test_score > genetic_list[r2]['score']:
-#             if genetic_list[r1]['score'] > genetic_list[r2]['score']:
-#                 genetic_list[r2] = {'score': test_score, 'genetic': child, 'child': True}
-#             else:
-#                 genetic_list[r1] = {'score': test_score, 'genetic': child, 'child': True}
-
-#     for ele in genetic_list:
-#         outfile.write(str(ele)+"\n")
-
-
+# 主程式
 if __name__ == '__main__':
     initialize(best_gen)
     times = 0
