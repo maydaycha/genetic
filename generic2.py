@@ -117,7 +117,7 @@ class_list = course_list
 
 population = []
 pool = []
-best_gen = {'fitness': 0, 'genetic': list}
+best_gen = {'fitness': 0, 'genetic': list, 'conflict': 0}
 
 # 進行初始化
 def initialize(best_gen):
@@ -125,13 +125,15 @@ def initialize(best_gen):
         gen = []
         for g in class_list:
             gen.append(random_list_of_string(g))
-        population.append({'fitness': cal_fitness(gen), 'genetic': gen})
+        population.append({'fitness': cal_fitness(gen), 'genetic': gen, 'conflict': conflict(gen)})
         if i == 0:
             best_gen['fitness'] = population[0]['fitness']
             best_gen['genetic'] = copy.deepcopy(population[0]['genetic'])
+            best_gen['fitness'] = population[0]['conflict']
         elif population[i]['fitness'] > best_gen['fitness']:
             best_gen['fitness'] = population[i]['fitness']
             best_gen['genetic'] = copy.deepcopy(population[i]['genetic'])
+            best_gen['fitness'] = population[i]['conflict']
 
 
 
@@ -140,7 +142,8 @@ def initialize(best_gen):
 def cal_fitness(genetic):
     punish = 0
     try:
-        punish = 1 / (adaptable1(genetic) + adaptable2(genetic) + adaptable3(genetic) + conflict(genetic) + 1)
+        # punish = 1 / (adaptable1(genetic) + adaptable2(genetic) + adaptable3(genetic) + conflict(genetic) + 1)
+        punish = 1 / (conflict(genetic) + 1)
     except ValueError:
         punish = 0
     return punish
@@ -215,12 +218,14 @@ def crossover():
             cnt += 1
         else: # 單點交配, 交配完後再丟回母體
             pos = GAPosRand()
-            for i in xrange(pos):
-                population[cnt]['genetic'][i] = copy.copy(pool[p1]['genetic'][i])
-                population[cnt+1]['genetic'][i] = copy.copy(pool[p2]['genetic'][i])
-            for i in xrange(pos, GENETIC_LENGTH):
-                population[cnt+1]['genetic'][i] = copy.copy(pool[p1]['genetic'][i])
-                population[cnt]['genetic'][i] = copy.copy(pool[p2]['genetic'][i])
+            # for i in xrange(pos):
+            #     population[cnt]['genetic'][i] = copy.copy(pool[p1]['genetic'][i])
+            #     population[cnt+1]['genetic'][i] = copy.copy(pool[p2]['genetic'][i])
+            # for i in xrange(pos, GENETIC_LENGTH):
+            #     population[cnt+1]['genetic'][i] = copy.copy(pool[p1]['genetic'][i])
+            #     population[cnt]['genetic'][i] = copy.copy(pool[p2]['genetic'][i])
+            population[cnt]['genetic'][pos] = copy.copy(pool[p1]['genetic'][pos])
+            population[cnt+1]['genetic'][pos] = copy.copy(pool[p2]['genetic'][pos])
             cnt += 2
 
 # 突變
@@ -235,6 +240,8 @@ def mutation():
             if population[i]['genetic'][pos][pos2][:1] == '2': # 如果選到連課
                 index = population[i]['genetic'][pos].index(population[i]['genetic'][pos][pos2])
                 index2 = population[i]['genetic'][pos].index(population[i]['genetic'][pos][pos3])
+                print population[i]['genetic'][pos][pos2]
+                print index, index2
                 temp1 = population[i]['genetic'][pos][index]
                 temp2 = population[i]['genetic'][pos][index+1]
                 if index2 == len(population[i]['genetic'][pos]) -1:
@@ -448,8 +455,7 @@ if __name__ == '__main__':
         times = i
         reproduction()   # 選擇(分配式)
         crossover() # 交配
-        mutation() # 突變
-    print population
+        # mutation() # 突變
     print "\n =========================\n"
     print "%d, times" % times
     for j in xrange(POPULATION_CNT):
